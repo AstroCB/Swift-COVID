@@ -1,5 +1,6 @@
 # Convert bordpnts.asc file to JSON data
 import json
+from point import Sorter, Point
 
 IN_FILE = "bordpnts.asc"
 OUT_FILE = "borders.json"
@@ -30,9 +31,13 @@ with open(IN_FILE) as border_data:
 # Convert JSON representation to something that will translate better to Swift
 borders_out = []
 for state, coords in borders.items():
+
+    coord_points = list(map(lambda c: Point(c["lat"], c["lng"]), coords))
+    sorted_points = Sorter(coord_points).sorted()
+    sorted_coords = list(map(lambda p: p.to_json(), sorted_points))
     borders_out.append({
         "state": state,
-        "coords": coords
+        "coords": sorted_coords
     })
 
 with open(OUT_FILE, "w") as output_file:
