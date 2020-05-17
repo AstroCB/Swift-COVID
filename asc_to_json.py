@@ -31,7 +31,6 @@ with open(IN_FILE) as border_data:
 # Convert JSON representation to something that will translate better to Swift
 borders_out = []
 for state, coords in borders.items():
-
     coord_points = list(map(lambda c: Point(c["lat"], c["lng"]), coords))
     sorted_points = Sorter(coord_points).sorted()
     sorted_coords = list(map(lambda p: p.to_json(), sorted_points))

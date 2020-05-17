@@ -28,9 +28,11 @@ struct Coord: Codable {
     }
 }
 
-struct Border: Codable {
+typealias Border = [Coord]
+
+struct State: Codable {
     var state: String
-    var coords: [Coord]
+    var borders: [Border]
 }
 
 class MapDelegate: NSObject, MKMapViewDelegate {
@@ -65,20 +67,22 @@ mapRegion.span = US_SPAN
 mapView.setRegion(mapRegion, animated: true)
 
 // Read border data
-var borders: [Border] = []
+var states: [State] = []
 if let filePath = Bundle.main.path(forResource: "borders", ofType: "json"),
     let borderData = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
     
     let decoder = JSONDecoder()
-    if let readBorders = try? decoder.decode([Border].self, from: borderData) {
-        borders = readBorders
+    if let readStates = try? decoder.decode([State].self, from: borderData) {
+        states = readStates
     }
 }
 
-for border in borders {
-    let coords = border.coords.map { $0.toCL() }
-    let poly = MKPolygon(coordinates: coords, count: coords.count)
-    mapView.addOverlay(poly)
+for state in states {
+    for border in state.borders {
+        let coords = border.map { $0.toCL() }
+        let poly = MKPolygon(coordinates: coords, count: coords.count)
+        mapView.addOverlay(poly)
+    }
 }
 
 // Add the created mapView to our Playground Live View
