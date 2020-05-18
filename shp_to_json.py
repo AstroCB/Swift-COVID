@@ -7,9 +7,10 @@ IN_FILE = "tl_2017_us_state/tl_2017_us_state"
 OUT_FILE = "swift-challenge.playground/Resources/borders.json"
 # Data set is extremely large and precise; using every point is unnecessary
 # and performance-prohibitive. Only keep 1 in DROP_RATE points for performance.
-DROP_RATE = 100
+# Decrease DROP_RATE to improve accuracy of borders.
+DROP_RATE = 25
 # Continental US only
-EXCLUDED_STATES = ["PR", "AK", "HI", "GU", "AS", "VI"]
+EXCLUDED_STATES = ["PR", "GU", "AS", "VI"]
 
 read_format = False
 states = []
