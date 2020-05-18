@@ -110,7 +110,7 @@ func getString(from date: Date) -> String {
 
 
 // MARK:- MapView delegate and auxiliary funcs
-var polyStates: [MKPolygon : (String, Date)] = [:]
+var polyStates: [MKPolygon : String] = [:]
 
 func getAlphaComponent(for state: String, on date: Date) -> CGFloat? {
     if let stateData = covidData[state],
@@ -118,8 +118,9 @@ func getAlphaComponent(for state: String, on date: Date) -> CGFloat? {
         
         let positive = pt.positive ?? 0
         let recovered = pt.recovered ?? 0
+        let deaths = pt.death ?? 0
         let pop = popData[state] ?? 1
-        let ratio = CGFloat(positive - recovered) / CGFloat(pop)
+        let ratio = CGFloat(positive - recovered - deaths) / CGFloat(pop)
         
         return OFFSET + (ratio * MULTIPLIER)
     }
@@ -130,9 +131,9 @@ class MapDelegate: NSObject, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView,
                  rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         if let poly = overlay as? MKPolygon,
-            let (state, date) = polyStates[poly] {
+            let state = polyStates[poly] {
             
-            let alpha = getAlphaComponent(for: state, on: date) ?? 0
+            let alpha = getAlphaComponent(for: state, on: START) ?? 0
             
             let renderer = MKPolygonRenderer(overlay: poly)
             renderer.lineWidth = 1
@@ -195,7 +196,7 @@ for state in states {
     for border in state.borders {
         let coords = border.map { $0.toCL() }
         let poly = MKPolygon(coordinates: coords, count: coords.count)
-        polyStates[poly] = (state.state, START)
+        polyStates[poly] = state.state
         mapView.addOverlay(poly)
     }
 }
@@ -203,7 +204,7 @@ for state in states {
 // MARK:- Set up UI element handlers
 let numDays = cal.dateComponents([.day], from: START, to: END).day ?? 0
 
-// Some "delegate"-y classes for handling actions in Playgroun
+// Some "delegate"-y classes for handling actions in Playground
 class SliderHandler: NSObject {
     @objc func slid(sender: NSSlider) {
         let days = Int(sender.intValue)
@@ -212,8 +213,6 @@ class SliderHandler: NSObject {
         if let date = cal.date(byAdding: .day, value: days, to: START) {
             dateLabel.stringValue = getString(from: date)
         }
-        
-        
         
         if buttonHandler.playing {
             buttonHandler.pause()
@@ -225,7 +224,7 @@ class SliderHandler: NSObject {
             for overlay in mapView.overlays {
                 if let poly = overlay as? MKPolygon,
                     let renderer = mapView.renderer(for: poly) as?
-                    MKPolygonRenderer, let (state, _) = polyStates[poly] {
+                    MKPolygonRenderer, let state = polyStates[poly] {
                     
                     let alpha = getAlphaComponent(for: state, on: date) ?? 0
                     renderer.fillColor = NSColor.red.withAlphaComponent(alpha)
