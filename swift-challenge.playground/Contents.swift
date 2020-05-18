@@ -25,6 +25,9 @@ let END = Date(timeIntervalSince1970: 1589731200)
 let OFFSET: CGFloat = 0.05
 let MULTIPLIER: CGFloat = 450
 
+// Speed of player
+let PLAY_INTERVAL = 0.5
+
 // MARK:- Deserialized representations of JSON data for states, COVID data, pop
 struct Coord: Codable {
     var lat: Float
@@ -265,9 +268,7 @@ class ButtonHandler: NSObject {
         var day = start
         
         // Auto-restart if playing from end
-        if first && day == numDays {
-            day = 0
-        }
+        if first && day == numDays { day = 0 }
         
         if day <= numDays && self.playing {
             slider.intValue = Int32(day)
@@ -275,8 +276,8 @@ class ButtonHandler: NSObject {
                                              value: day, to: START) ?? END
             dateLabel.stringValue = getString(from: date)
             slideHandler.setAlpha(for: day)
-            DispatchQueue.main.asyncAfter(deadline: .now()+0.5) {
-                self.play(from: day+1, completion: completion)
+            DispatchQueue.main.asyncAfter(deadline: .now() + PLAY_INTERVAL) {
+                self.play(from: day + 1, completion: completion)
             }
         } else {
             completion?()
@@ -291,7 +292,7 @@ let rightEdge = mapView.frame.maxX
 // Date label
 let dateLabel = NSTextField(labelWithString: getString(from: START))
 let dateX = rightEdge - dateLabel.frame.width - BUFFER
-let dateY = Y_BASELINE+BUFFER/2
+let dateY = Y_BASELINE + BUFFER / 2
 dateLabel.frame = CGRect(x: dateX, y: dateY, width: BTN_SZ, height: BTN_SZ)
 dateLabel.sizeToFit()
 mapView.addSubview(dateLabel)
@@ -301,7 +302,7 @@ let buttonHandler = ButtonHandler()
 let button = NSButton(image: buttonHandler.start, target: buttonHandler,
                       action: #selector(buttonHandler.clicked(sender:)))
 
-let btnX = dateLabel.frame.minX - BTN_SZ - BUFFER/2
+let btnX = dateLabel.frame.minX - BTN_SZ - (BUFFER / 2)
 button.frame = CGRect(x: btnX, y: Y_BASELINE, width: BTN_SZ, height: BTN_SZ)
 mapView.addSubview(button)
 

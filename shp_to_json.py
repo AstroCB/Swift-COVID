@@ -8,7 +8,7 @@ OUT_FILE = "swift-challenge.playground/Resources/borders.json"
 # Data set is extremely large and precise; using every point is unnecessary
 # and performance-prohibitive. Only keep 1 in DROP_RATE points for performance.
 # Decrease DROP_RATE to improve accuracy of borders.
-DROP_RATE = 25
+DROP_RATE = 15
 # Continental US only
 EXCLUDED_STATES = ["PR", "GU", "AS", "VI"]
 
